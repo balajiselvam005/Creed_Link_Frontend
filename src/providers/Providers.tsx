@@ -2,9 +2,8 @@
 
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "@/providers/AuthProvider"; // adjust path if needed
+import { AuthProvider } from "@/providers/AuthProvider";
 
-// Create query client outside component
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

@@ -25,7 +25,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signupMutation = useSignup();
   const loginMutation = useLogin();
 
-  // Initialize user on app start
   useEffect(() => {
     if (!initialized) {
       getCurrentUser()
@@ -46,7 +45,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signup = async (form: SignupForm) => {
     signupMutation.mutate(form, {
       onSuccess: (res) => {
-        // Automatically log in the user after successful signup
         setUser(res.data.data.user);
         router.push("/");
       },
@@ -78,7 +76,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (error) {
       console.error("Logout API call failed:", error);
     } finally {
-      // Always clear user state regardless of API success
       setUser(null);
       router.push("/");
     }

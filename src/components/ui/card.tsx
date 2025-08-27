@@ -42,21 +42,20 @@ const AuthCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
     const toggleMode = () => {
       const newMode = mode === "login" ? "signup" : "login";
       setMode(newMode);
-      setErrors({}); // Clear errors when switching modes
+      setErrors({});
       setForm({
         firstName: "",
         lastName: "",
         email: "",
         password: "",
         confirmPassword: "",
-      }); // Reset form
+      });
       router.push(`/auth?mode=${newMode}`);
     };
 
     const validateForm = (): boolean => {
       const newErrors: Record<string, string> = {};
 
-      // Email validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!form.email) {
         newErrors.email = "Email is required";
@@ -64,7 +63,6 @@ const AuthCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
         newErrors.email = "Please enter a valid email";
       }
 
-      // Password validation
       if (!form.password) {
         newErrors.password = "Password is required";
       } else if (form.password.length < 6) {
@@ -72,17 +70,14 @@ const AuthCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
       }
 
       if (mode === "signup") {
-        // First name validation
         if (!form.firstName.trim()) {
           newErrors.firstName = "First name is required";
         }
 
-        // Last name validation
         if (!form.lastName.trim()) {
           newErrors.lastName = "Last name is required";
         }
 
-        // Confirm password validation
         if (!form.confirmPassword) {
           newErrors.confirmPassword = "Please confirm your password";
         } else if (form.password !== form.confirmPassword) {
@@ -98,7 +93,6 @@ const AuthCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
       const { name, value } = e.target;
       setForm({ ...form, [name]: value });
 
-      // Clear error for this field when user starts typing
       if (errors[name]) {
         setErrors({ ...errors, [name]: "" });
       }
@@ -228,3 +222,17 @@ const AuthCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
 );
 
 AuthCard.displayName = "AuthCard";
+
+const UserCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
+  ({ className, ...props }, ref) => {
+    return (
+      <motion.div className="">
+        <div></div>
+      </motion.div>
+    );
+  }
+);
+
+UserCard.displayName = "UserCard";
+
+export { AuthCard, UserCard };

@@ -3,18 +3,18 @@ import Pen from "../components/ui/pen";
 import Paper from "../components/ui/paper";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import Card from "../components/ui/card";
+import { UserCard } from "../components/ui/card";
 import { Link, ArrowRight } from "lucide-react";
 
 export default function LandingPage() {
   const searchParam = useSearchParams();
-  const scrollTo = searchParam.get('scrollTo');
+  const scrollTo = searchParam.get("scrollTo");
 
   useEffect(() => {
     if (scrollTo) {
       const section = document.getElementById(scrollTo);
       if (section) {
-        section.scrollIntoView({ behavior: 'smooth' });
+        section.scrollIntoView({ behavior: "smooth" });
       }
     }
   }, [scrollTo]);
@@ -27,13 +27,12 @@ export default function LandingPage() {
           {/* Text Content */}
           <div className="text-center lg:text-left w-full lg:w-auto max-w-4xl lg:max-w-3xl space-y-4 sm:space-y-6 order-2 lg:order-1">
             <h1 className="heading-primary">
-              A platform where creators and organizations connect, collaborate, and thrive.
+              A platform where creators and organizations connect, collaborate,
+              and thrive.
             </h1>
-            <p className="heading-sub">
-              Connect. Collaborate. Create.
-            </p>
+            <p className="heading-sub">Connect. Collaborate. Create.</p>
           </div>
-          
+
           {/* Illustration */}
           <div className="flex justify-center items-center order-1 lg:order-2 w-full lg:w-auto">
             <div className="flex scale-75 sm:scale-90 md:scale-100">
@@ -43,28 +42,30 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
       {/* Cards Section */}
       <section id="home-section" className="px-4 sm:px-8 lg:px-16">
         <div className="max-w-7xl mx-auto min-h-screen py-8 sm:py-10">
           {/* Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 place-items-center mb-8 sm:mb-12">
-            <Card />
-            <Card />
-            <Card />
-            <Card />
+            <UserCard />
+            <UserCard />
+            <UserCard />
+            <UserCard />
             {/* Additional cards for larger screens */}
             <div className="hidden xl:block">
-              <Card />
+              <UserCard />
             </div>
             <div className="hidden xl:block">
-              <Card />
+              <UserCard />
             </div>
           </div>
-          
+
           {/* Explore Button */}
           <div className="flex justify-center">
-            <Link href="/creators" className="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 text-sm sm:text-base">
+            <Link
+              href="/creators"
+              className="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 text-sm sm:text-base"
+            >
               <span>Explore Creators</span>
               <ArrowRight size={20} />
             </Link>

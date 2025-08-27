@@ -6,7 +6,6 @@ export const useSignup = () => {
   return useMutation({
     mutationFn: registerUser,
     onError: (error: any) => {
-      // Handle specific error cases
       if (error.response?.status === 409) {
         throw new Error('User already exists with this email');
       } else if (error.response?.status === 400) {

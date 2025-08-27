@@ -19,7 +19,7 @@ const Header = () => {
 
   const goToHomeSection = (sectionId: string) => {
     router.push(`/?scrollTo=${sectionId}`);
-    setIsMobileMenuOpen(false); // Close mobile menu after navigation
+    setIsMobileMenuOpen(false);
   };
 
   const goToAuthPage = (isLogin: boolean) => {
@@ -51,7 +51,6 @@ const Header = () => {
     <header className="bg-gray-400 p-4 sm:p-6 lg:p-10 transition-all">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
         <div className="flex justify-between items-center">
-          {/* Logo */}
           <button
             onClick={() => goToHomeSection("landing-section")}
             className="text-xl sm:text-2xl lg:text-3xl font-semibold whitespace-nowrap"
@@ -59,7 +58,6 @@ const Header = () => {
             Creed Link
           </button>
 
-          {/* Desktop Navigation */}
           <nav className="hidden lg:flex rounded-4xl p-3 xl:p-5 space-x-4 xl:space-x-8 border shadow-2xl overflow-hidden">
             <button
               onClick={() => goToHomeSection("home-section")}
@@ -102,10 +100,7 @@ const Header = () => {
             </Link>
           </nav>
 
-          {/* Right side items */}
-
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* User Icon  OR Login and Sign up button */}
             {!user ? (
               <div className="space-x-2 sm:space-x-4">
                 <Button
@@ -128,7 +123,6 @@ const Header = () => {
             ) : (
               <Avatar />
             )}
-            {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden border rounded-full p-2"
@@ -138,7 +132,6 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation Menu */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.nav

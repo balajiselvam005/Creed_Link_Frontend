@@ -35,7 +35,6 @@ export interface InputProps
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, variant, inputSize, label, error, ...props }, ref) => {
-    // Use error variant if error exists, otherwise use provided variant
     const finalVariant = error ? "error" : variant;
 
     return (

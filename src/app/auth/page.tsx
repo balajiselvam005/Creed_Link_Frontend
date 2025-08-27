@@ -1,4 +1,4 @@
-import AuthCard from "@/components/ui/card";
+import { AuthCard } from "@/components/ui/card";
 import { ChevronUp, HeartHandshake, Lock } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
