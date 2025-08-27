@@ -8,27 +8,29 @@ import { Button } from "./button";
 import { HTMLMotionProps, motion } from "framer-motion";
 import { useSignup } from "@/hooks/useSignup";
 import { useLogin } from "@/hooks/useLogin";
+import { useAuth } from "@/hooks/useAuth";
+import { SignupForm } from "@/types/authForm";
 
 const AuthCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
   ({ className, ...props }, ref) => {
     const searchParam = useSearchParams();
     const router = useRouter();
-
     const initialMode =
       searchParam.get("mode") === "signup" ? "signup" : "login";
     const [mode, setMode] = useState<"signup" | "login">(initialMode);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
-    // group state into one form object
-    const [form, setForm] = useState({
+    const [form, setForm] = useState<SignupForm>({
       firstName: "",
       lastName: "",
-      emailId: "",
+      email: "",
       password: "",
       confirmPassword: "",
     });
 
     const signupMutation = useSignup();
     const loginMutation = useLogin();
+    const { login, signup } = useAuth();
 
     useEffect(() => {
       const urlMode = searchParam.get("mode");
@@ -40,27 +42,84 @@ const AuthCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
     const toggleMode = () => {
       const newMode = mode === "login" ? "signup" : "login";
       setMode(newMode);
+      setErrors({}); // Clear errors when switching modes
+      setForm({
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      }); // Reset form
       router.push(`/auth?mode=${newMode}`);
     };
 
+    const validateForm = (): boolean => {
+      const newErrors: Record<string, string> = {};
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!form.email) {
+        newErrors.email = "Email is required";
+      } else if (!emailRegex.test(form.email)) {
+        newErrors.email = "Please enter a valid email";
+      }
+
+      // Password validation
+      if (!form.password) {
+        newErrors.password = "Password is required";
+      } else if (form.password.length < 6) {
+        newErrors.password = "Password must be at least 6 characters";
+      }
+
+      if (mode === "signup") {
+        // First name validation
+        if (!form.firstName.trim()) {
+          newErrors.firstName = "First name is required";
+        }
+
+        // Last name validation
+        if (!form.lastName.trim()) {
+          newErrors.lastName = "Last name is required";
+        }
+
+        // Confirm password validation
+        if (!form.confirmPassword) {
+          newErrors.confirmPassword = "Please confirm your password";
+        } else if (form.password !== form.confirmPassword) {
+          newErrors.confirmPassword = "Passwords do not match";
+        }
+      }
+
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setForm({ ...form, [e.target.name]: e.target.value });
+      const { name, value } = e.target;
+      setForm({ ...form, [name]: value });
+
+      // Clear error for this field when user starts typing
+      if (errors[name]) {
+        setErrors({ ...errors, [name]: "" });
+      }
     };
 
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
 
+      if (!validateForm()) {
+        return;
+      }
+
       if (mode === "signup") {
-        signupMutation.mutate(form, {
-          onSuccess: () => router.push("/dashboard"),
-        });
+        signup(form);
       } else {
-        loginMutation.mutate(
-          { emailId: form.emailId, password: form.password },
-          { onSuccess: () => router.push("/dashboard") }
-        );
+        login({ email: form.email, password: form.password });
       }
     };
+
+    const isLoading = signupMutation.isPending || loginMutation.isPending;
+    const apiError = signupMutation.error || loginMutation.error;
 
     return (
       <motion.div
@@ -73,10 +132,13 @@ const AuthCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
         )}
         {...props}
       >
-        <h2>{mode === "login" ? "Welcome Back" : "Create an Account"}</h2>
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <h2 className="text-2xl font-semibold text-center">
+          {mode === "login" ? "Welcome Back" : "Create an Account"}
+        </h2>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           {mode === "signup" && (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Input
                 label="First name"
                 name="firstName"
@@ -84,6 +146,7 @@ const AuthCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
                 placeholder="Enter your first name"
                 value={form.firstName}
                 onChange={handleChange}
+                error={errors.firstName}
               />
               <Input
                 label="Last name"
@@ -92,17 +155,21 @@ const AuthCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
                 placeholder="Enter your last name"
                 value={form.lastName}
                 onChange={handleChange}
+                error={errors.lastName}
               />
             </div>
           )}
+
           <Input
-            label="Email id"
-            name="emailId"
+            label="Email"
+            name="email"
             type="email"
-            placeholder="Enter your email id"
-            value={form.emailId}
+            placeholder="Enter your email"
+            value={form.email}
             onChange={handleChange}
+            error={errors.email}
           />
+
           <Input
             label="Password"
             name="password"
@@ -110,7 +177,9 @@ const AuthCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
             placeholder="Enter your password"
             value={form.password}
             onChange={handleChange}
+            error={errors.password}
           />
+
           {mode === "signup" && (
             <Input
               label="Confirm password"
@@ -119,13 +188,11 @@ const AuthCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
               placeholder="Confirm your password"
               value={form.confirmPassword}
               onChange={handleChange}
+              error={errors.confirmPassword}
             />
           )}
 
-          <Button
-            type="submit"
-            disabled={signupMutation.isPending || loginMutation.isPending}
-          >
+          <Button type="submit" disabled={isLoading} className="w-full">
             {mode === "login"
               ? loginMutation.isPending
                 ? "Logging in..."
@@ -135,25 +202,29 @@ const AuthCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
                 : "Sign Up"}
           </Button>
 
-          {(signupMutation.error || loginMutation.error) && (
-            <p className="text-red-600 text-sm mt-2">
-              {(signupMutation.error as Error)?.message ||
-                (loginMutation.error as Error)?.message}
-            </p>
+          {apiError && (
+            <div className="bg-red-50 border border-red-200 rounded-md p-3">
+              <p className="text-red-600 text-sm">
+                {(apiError as Error)?.message || "An error occurred"}
+              </p>
+            </div>
           )}
         </form>
 
-        <p>
-          <button onClick={toggleMode} className="hover:underline">
+        <div className="text-center">
+          <button
+            onClick={toggleMode}
+            className="text-blue-600 hover:underline text-sm"
+            disabled={isLoading}
+          >
             {mode === "login"
-              ? "Don't have an account?"
-              : "Already have an account"}
+              ? "Don't have an account? Sign up"
+              : "Already have an account? Log in"}
           </button>
-        </p>
+        </div>
       </motion.div>
     );
   }
 );
 
 AuthCard.displayName = "AuthCard";
-export default AuthCard;

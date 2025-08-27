@@ -1,14 +1,17 @@
 "use client";
 import Link from "next/link";
-import { User, Users, Home, Search, Menu, X, ArrowLeft } from "lucide-react";
+import { Users, Home, Search, Menu, X, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
+import Avatar from "./ui/avatar";
+import { useAuth } from "@/hooks/useAuth";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logout, loading } = useAuth();
   const pathName = usePathname();
   const isCreatorsPage = pathName === "/creators";
   const isAuthPage = pathName === "/auth";
@@ -21,7 +24,7 @@ const Header = () => {
 
   const goToAuthPage = (isLogin: boolean) => {
     router.push(`/auth?mode=${isLogin ? "login" : "signup"}`);
-  }
+  };
 
   if (isAuthPage) {
     return (
@@ -35,14 +38,10 @@ const Header = () => {
           </Link>
           <div className="flex hover:text-gray-700 pr-20 transition hover:shadow-2xl hover:-translate-y-1">
             <ArrowLeft />
-            <Link
-              href="/"
-              className="text-sm sm:text-base underline"
-            >
+            <Link href="/" className="text-sm sm:text-base underline">
               Back to Home
             </Link>
           </div>
-
         </div>
       </header>
     );
@@ -54,7 +53,7 @@ const Header = () => {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <button
-            onClick={() => goToHomeSection('landing-section')}
+            onClick={() => goToHomeSection("landing-section")}
             className="text-xl sm:text-2xl lg:text-3xl font-semibold whitespace-nowrap"
           >
             Creed Link
@@ -63,51 +62,72 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex rounded-4xl p-3 xl:p-5 space-x-4 xl:space-x-8 border shadow-2xl overflow-hidden">
             <button
-              onClick={() => goToHomeSection('home-section')}
+              onClick={() => goToHomeSection("home-section")}
               className="flex items-center space-x-2 hover:underline transition-all"
             >
               <Home size={20} />
               <span className="hidden xl:inline">Home</span>
             </button>
-            <Link href='/creators' className="flex items-center space-x-2 hover:underline transition-all">
+            <Link
+              href="/creators"
+              className="flex items-center space-x-2 hover:underline transition-all"
+            >
               <Users size={20} />
               <span className="hidden xl:inline">Creators</span>
             </Link>
             <AnimatePresence>
               {isCreatorsPage && (
                 <motion.div
-                  key={'search'}
+                  key={"search"}
                   initial={{ opacity: 0, scale: 0.8, x: -10 }}
                   animate={{ opacity: 1, scale: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.8, x: -10 }}
                 >
-                  <Link href='/search' className="flex items-center space-x-2 hover:underline transition-all">
+                  <Link
+                    href="/search"
+                    className="flex items-center space-x-2 hover:underline transition-all"
+                  >
                     <Search size={20} />
                     <span className="hidden xl:inline">Search</span>
                   </Link>
                 </motion.div>
               )}
             </AnimatePresence>
-            <Link href='/templates' className="flex items-center space-x-2 hover:underline transition-all">
+            <Link
+              href="/templates"
+              className="flex items-center space-x-2 hover:underline transition-all"
+            >
               <Menu size={20} />
               <span className="hidden xl:inline">Templates</span>
             </Link>
           </nav>
 
           {/* Right side items */}
+
           <div className="flex items-center space-x-2 sm:space-x-4">
-            <Button elevate={true} size={"sm"} variant={"ghost"} onClick={() => goToAuthPage(true)}>
-              Login
-            </Button>
-            <Button elevate={true} size={"sm"} variant={"ghost"} onClick={() => goToAuthPage(false)}>
-              Sign Up
-            </Button>
-
             {/* User Icon  OR Login and Sign up button */}
-            <div className="border rounded-full p-2">
-              <User size={20} />
-            </div>
-
+            {!user ? (
+              <div className="space-x-2 sm:space-x-4">
+                <Button
+                  elevate={true}
+                  size={"sm"}
+                  variant={"ghost"}
+                  onClick={() => goToAuthPage(true)}
+                >
+                  Login
+                </Button>
+                <Button
+                  elevate={true}
+                  size={"sm"}
+                  variant={"ghost"}
+                  onClick={() => goToAuthPage(false)}
+                >
+                  Sign Up
+                </Button>
+              </div>
+            ) : (
+              <Avatar />
+            )}
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -129,14 +149,14 @@ const Header = () => {
             >
               <div className="py-2">
                 <button
-                  onClick={() => goToHomeSection('home-section')}
+                  onClick={() => goToHomeSection("home-section")}
                   className="flex justify-end space-x-3 w-full px-4 py-3 hover:bg-gray-100 transition-colors"
                 >
                   <span>Home</span>
                   <Home size={20} />
                 </button>
                 <Link
-                  href='/creators'
+                  href="/creators"
                   className="flex justify-end space-x-3 w-full px-4 py-3 hover:bg-gray-100 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -145,7 +165,7 @@ const Header = () => {
                 </Link>
                 {isCreatorsPage && (
                   <Link
-                    href='/search'
+                    href="/search"
                     className="flex justify-end space-x-3 w-full px-4 py-3 hover:bg-gray-100 transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -154,7 +174,7 @@ const Header = () => {
                   </Link>
                 )}
                 <Link
-                  href='/templates'
+                  href="/templates"
                   className="flex justify-end space-x-3 w-full px-4 py-3 hover:bg-gray-100 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
