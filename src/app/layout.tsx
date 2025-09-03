@@ -29,8 +29,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-gray-400`}
       >
-        <Header />
-        <Providers>{children} </Providers>
+        <Providers>
+          <Header />
+          {children}{" "}
+        </Providers>
       </body>
     </html>
   );

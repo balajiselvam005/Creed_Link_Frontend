@@ -6,6 +6,12 @@ export type ApiResponse<T> = {
   data: T;
 };
 
+export type RegisterResponse = {
+  message: string;
+  verificationToken: string;
+  isVerified: boolean;
+};
+
 export type AuthenticationResponse = {
   accessToken: string;
   refreshToken: string;

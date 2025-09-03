@@ -4,7 +4,6 @@ export default function Templates() {
             <h1 className="text-3xl font-bold underline">
                 Templates
             </h1>
-
         </div>
     )
 }

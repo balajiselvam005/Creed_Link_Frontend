@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  getCurrentUser,
-  loginUser,
-  logoutUser,
-} from "@/app/server/api/userRoute";
+import { getCurrentUser, logoutUser } from "@/app/server/api/userRoute";
 import { User } from "@/types/user";
 import { AuthContext } from "@/contexts/AuthContext";
 import { useEffect, useState, ReactNode } from "react";
@@ -12,6 +8,7 @@ import { useSignup } from "@/hooks/useSignup";
 import { useLogin } from "@/hooks/useLogin";
 import { LoginForm, SignupForm } from "@/types/authForm";
 import { useRouter } from "next/navigation";
+import { AxiosError } from "axios";
 
 type AuthProviderProps = {
   children: ReactNode;
@@ -25,31 +22,42 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signupMutation = useSignup();
   const loginMutation = useLogin();
 
+  const refreshCurrentUser = async () => {
+    try {
+      const res = await getCurrentUser();
+      setUser(res.data.data);
+      return res.data.data;
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      console.log(
+        "No authenticated user:",
+        axiosError.response?.data?.message || axiosError.message
+      );
+      setUser(null);
+      return null;
+    }
+  };
+
   useEffect(() => {
     if (!initialized) {
-      getCurrentUser()
-        .then((res) => {
-          setUser(res.data.data.user);
-        })
-        .catch((error) => {
-          console.log("No authenticated user:", error.message);
-          setUser(null);
-        })
-        .finally(() => {
-          setLoading(false);
-          setInitialized(true);
-        });
+      refreshCurrentUser().finally(() => {
+        setLoading(false);
+        setInitialized(true);
+      });
     }
   }, [initialized]);
 
   const signup = async (form: SignupForm) => {
     signupMutation.mutate(form, {
-      onSuccess: (res) => {
-        setUser(res.data.data.user);
-        router.push("/");
+      onSuccess: () => {
+        router.push(`/verify-user?email=${form.email}`);
       },
-      onError: (error) => {
-        console.error("Signup failed:", error.message);
+      onError: (error: unknown) => {
+        const axiosError = error as AxiosError<{ message?: string }>;
+        console.error(
+          "Signup failed:",
+          axiosError.response?.data.message || axiosError.message
+        );
       },
     });
   };
@@ -59,11 +67,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
       { email, password },
       {
         onSuccess: (res) => {
-          setUser(res.data.data.user);
-          router.push("/");
+          if (res.data.success) {
+            setUser(res.data.data.user);
+            router.push("/");
+          } else {
+            console.warn("Login failed:", res.data.message);
+            setUser(null);
+            router.push(`/verify-user?email=${email}`);
+          }
         },
-        onError: (error) => {
-          console.error("Login failed:", error.message);
+        onError: (error: unknown) => {
+          const axiosError = error as AxiosError<{ message?: string }>;
+          console.error(
+            "Login request error:",
+            axiosError.response?.data.message || axiosError.message
+          );
           setUser(null);
         },
       }
@@ -73,8 +91,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = async () => {
     try {
       await logoutUser();
-    } catch (error) {
-      console.error("Logout API call failed:", error);
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      console.error(
+        "Logout API call failed:",
+        axiosError.response?.data.message || axiosError.message
+      );
     } finally {
       setUser(null);
       router.push("/");
@@ -89,6 +111,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         login,
         signup,
         logout,
+        refreshCurrentUser,
         loading: loading || signupMutation.isPending || loginMutation.isPending,
       }}
     >

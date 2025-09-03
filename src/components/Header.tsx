@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Users, Home, Search, Menu, X, ArrowLeft } from "lucide-react";
+import { Users, Home, Search, Menu, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -14,7 +14,7 @@ const Header = () => {
   const { user, logout, loading } = useAuth();
   const pathName = usePathname();
   const isCreatorsPage = pathName === "/creators";
-  const isAuthPage = pathName === "/auth";
+  const isBasicHeader = pathName === "/auth" || pathName === "/verify-user";
   const router = useRouter();
 
   const goToHomeSection = (sectionId: string) => {
@@ -26,7 +26,7 @@ const Header = () => {
     router.push(`/auth?mode=${isLogin ? "login" : "signup"}`);
   };
 
-  if (isAuthPage) {
+  if (isBasicHeader) {
     return (
       <header className="bg-gray-400 p-4 sm:p-6">
         <div className="max-w-screen mx-auto flex justify-between items-center">
@@ -101,7 +101,9 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {!user ? (
+            {loading ? (
+              <div className="w-8 h-8 rounded-full bg-gray-300 animate-pulse" /> // skeleton loader
+            ) : !user ? (
               <div className="space-x-2 sm:space-x-4">
                 <Button
                   elevate={true}
@@ -121,14 +123,18 @@ const Header = () => {
                 </Button>
               </div>
             ) : (
-              <Avatar />
+              <div className="flex gap-5">
+                <Avatar />
+                <Button
+                  elevate={true}
+                  size={"sm"}
+                  variant={"ghost"}
+                  onClick={() => logout()}
+                >
+                  Logout
+                </Button>
+              </div>
             )}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden border rounded-full p-2"
-            >
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
           </div>
         </div>
 

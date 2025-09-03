@@ -4,7 +4,8 @@ import Paper from "../components/ui/paper";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { UserCard } from "../components/ui/card";
-import { Link, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export default function LandingPage() {
   const searchParam = useSearchParams();

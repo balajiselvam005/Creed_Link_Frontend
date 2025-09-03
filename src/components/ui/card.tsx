@@ -10,6 +10,7 @@ import { useSignup } from "@/hooks/useSignup";
 import { useLogin } from "@/hooks/useLogin";
 import { useAuth } from "@/hooks/useAuth";
 import { SignupForm } from "@/types/authForm";
+import Avatar from "./avatar";
 
 const AuthCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
   ({ className, ...props }, ref) => {
@@ -227,7 +228,7 @@ const UserCard = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
   ({ className, ...props }, ref) => {
     return (
       <motion.div className="">
-        <div></div>
+        <Avatar />
       </motion.div>
     );
   }
